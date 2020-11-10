@@ -163,6 +163,7 @@ genWeekly <- function() {
       }
     }
   }
+  return("Generated")
 }
 
 # Send the weekly one-on-one assignments 
@@ -174,20 +175,23 @@ sendWeekly <- function() {
     member <- actives[i,]
     
     # Get this member's assignments
-    myTwo = dbGetQuery("SELECT p2_slackID FROM weekly WHERE p1_slackID = ?", c(member$slackID))
+    myTwo = dbGetQuery(conn, "SELECT p2_slackID FROM weekly WHERE p1_slackID = ?", c(member$slackID))
+    
+    # Warning message
+    message <- ""
     
     # Set start of message
     if(nrow(myTwo) == 0)
-      message <- paste0("Hi <@", member$slackID, ">! You do not have any recommended one-on-ones this week!\n")
+      message <- paste0(message, "Hi <@", member$slackID, ">! You do not have any recommended one-on-ones this week!\n")
     else
-      message <- paste0("Hi <@", member$slackID, ">! This week your recommended one-on-ones are with: \n")
-    
+      message <- paste0(message, "Hi <@", member$slackID, ">! This week your recommended one-on-ones are with: \n")
+    print(myTwo)
     # Add each assigned user to this message
     for(j in 1:nrow(myTwo))
-      message <- paste0(message, "- <@", + myTwo[j, ]$slackID, ">\n")
+      message <- paste0(message, "- <@", myTwo[j, ], ">\n")
     
     # Add message ending
-    message <- paste0("Again, these are no consequences for not completing these. These are just to help you decide who to do a one-on-one with next! \n Please let <@UDCLQH6EN> know if there are any issues (for example, if you were assigned someone you already did a one-on-one with).")
+    message <- paste0(message, "Again, these are no consequences for not completing these. These are just to help you decide who to do a one-on-one with next! \n Please let <@UDCLQH6EN> know if there are any issues (for example, if you were assigned someone you already did a one-on-one with).")
     
     # Send this message
     sendDM(member$slackID, message)
@@ -197,6 +201,7 @@ sendWeekly <- function() {
     #       2 seconds is to be safe.
     Sys.sleep(2)
   }
+  return("Sent")
 }
 
 
